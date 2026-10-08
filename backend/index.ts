@@ -5,6 +5,7 @@ import cors from "cors";
 import status from "http-status";
 import cookieParser from "cookie-parser";
 import AuthRoutes from "./src/features/auth/auth.route";
+import BillsRoutes from "./src/features/bills/bills.route";
 
 const PORT = process.env.PORT || 3333;
 
@@ -25,6 +26,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/v1/auth", AuthRoutes);
+app.use("/api/v1/bills", BillsRoutes);
 
 
 server.listen(PORT, () => {

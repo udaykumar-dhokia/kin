@@ -1,8 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -10,6 +8,37 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+enum BillCategory {
+  ELECTRICITY
+  WATER
+  INTERNET_BROADBAND
+  RENT
+  CREDIT_CARD
+  LOAN_EMI
+  SUBSCRIPTION
+  INSURANCE_PREMIUM
+  EDUCATION_FEES
+  GAS_UTILITY
+  TAX
+  OTHER
+}
+
+enum BillStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum RecurrenceInterval {
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  QUARTERLY
+  HALF_YEARLY
+  YEARLY
 }
 
 model User {
@@ -25,6 +54,7 @@ model User {
   emailVerified Boolean @default(false)
 
   sessions Session[]
+  bills    Bill[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -50,4 +80,52 @@ model Session {
   @@index([userId])
   @@index([expiresAt])
   @@index([revokedAt])
+}
+
+model Bill {
+  id String @id @default(uuid())
+
+  // Ownership
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Core Bill Details
+  title       String
+  description String?
+  category    BillCategory @default(OTHER)
+
+  // Financial Information
+  amount   Decimal @db.Decimal(10, 2)
+  currency String  @default("INR")
+
+  // Timing & Lifecycle
+  dueDate DateTime
+  status  BillStatus @default(PENDING)
+
+  // Payment Tracking
+  paidAt        DateTime?
+  paidAmount    Decimal?  @db.Decimal(10, 2)
+  paymentMethod String?   // "UPI", "Credit Card", "Net Banking", "Auto-debit", etc.
+
+  // Recurrence
+  isRecurring        Boolean             @default(false)
+  recurrenceInterval RecurrenceInterval?
+
+  // Self-relation for recurring series
+  parentBillId String?
+  parentBill   Bill?   @relation("BillRecurrenceSeries", fields: [parentBillId], references: [id], onDelete: SetNull)
+  childBills   Bill[]  @relation("BillRecurrenceSeries")
+
+  // Attached Documents via Cloudinary
+  billUrl    String? // Invoice / statement URL
+  receiptUrl String? // Payment confirmation / screenshot URL
+
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, status])
+  @@index([userId, dueDate])
+  @@index([userId, category])
+  @@index([parentBillId])
 }
