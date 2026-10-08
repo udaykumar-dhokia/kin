@@ -1,0 +1,594 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Kin - Life Admin OS API",
+    "version": "1.0.0",
+    "description": "The personal operations system that remembers, organizes, and tracks life responsibilities, bills, renewals, and documents."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3333",
+      "description": "Local development server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Enter your JWT access token"
+      }
+    }
+  },
+  "paths": {
+    "/api/v1/auth/register": {
+      "post": {
+        "summary": "Register User",
+        "description": "Registers a new user with Argon2id password hashing, creates an active session, and returns tokens.",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "description": "User registration details",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "email": "user@example.com",
+                  "password": "StrongPassword123!",
+                  "firstName": "Alex",
+                  "lastName": "Kumar"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "User registered successfully",
+                    "user": {
+                      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                      "email": "user@example.com",
+                      "firstName": "Alex",
+                      "lastName": "Kumar",
+                      "avatarUrl": null,
+                      "emailVerified": false
+                    },
+                    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    "refreshToken": "c79f8263e8a4a..."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed"
+          },
+          "409": {
+            "description": "User with this email already exists"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "summary": "Login User",
+        "description": "Authenticates credentials using Argon2id, generates a new session, and returns tokens.",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "description": "User login credentials",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "email": "user@example.com",
+                  "password": "StrongPassword123!"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Login successful",
+                    "user": {
+                      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                      "email": "user@example.com",
+                      "firstName": "Alex",
+                      "lastName": "Kumar"
+                    },
+                    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    "refreshToken": "c79f8263e8a4a..."
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid email or password"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "summary": "Refresh Token",
+        "description": "Rotates refresh token and issues a new access token. Reads from cookie or JSON body.",
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "description": "Optional refresh token in body if not using cookies",
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "refreshToken": "optional_refresh_token_if_not_in_cookie"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token refreshed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Token refreshed successfully",
+                    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    "refreshToken": "new_rotated_refresh_token..."
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired session"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "summary": "Get Current Profile",
+        "description": "Returns profile details for the authenticated user.",
+        "tags": [
+          "Authentication"
+        ],
+        "responses": {
+          "200": {
+            "description": "User profile details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "user": {
+                      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                      "email": "user@example.com",
+                      "firstName": "Alex",
+                      "lastName": "Kumar",
+                      "avatarUrl": null,
+                      "emailVerified": false
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "summary": "Logout",
+        "description": "Revokes the active session and clears the refresh token cookie.",
+        "tags": [
+          "Authentication"
+        ],
+        "responses": {
+          "200": {
+            "description": "Logged out successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Logged out successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/bills/dashboard": {
+      "get": {
+        "summary": "Get Attention Dashboard",
+        "description": "Returns categorized urgent items (Overdue, Due Soon in 7 days, Upcoming in 30 days) and financial totals.",
+        "tags": [
+          "Bills & Payments"
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard attention view",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "dashboard": {
+                      "overdue": [],
+                      "dueSoon": [],
+                      "upcoming": [],
+                      "metrics": {
+                        "totalPendingAmount": 22000,
+                        "overdueCount": 0,
+                        "dueSoonCount": 0,
+                        "upcomingCount": 1,
+                        "currency": "INR"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/bills": {
+      "post": {
+        "summary": "Create Bill",
+        "description": "Manually creates a new bill or recurring financial responsibility.",
+        "tags": [
+          "Bills & Payments"
+        ],
+        "requestBody": {
+          "description": "New bill data",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "title": "Apartment Rent",
+                  "description": "Monthly apartment rent payment to landlord",
+                  "category": "RENT",
+                  "amount": 22000,
+                  "currency": "INR",
+                  "dueDate": "2026-11-01T00:00:00.000Z",
+                  "isRecurring": true,
+                  "recurrenceInterval": "MONTHLY",
+                  "notes": "Landlord bank transfer"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Bill created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Bill created successfully",
+                    "bill": {
+                      "id": "b1a2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+                      "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                      "title": "Apartment Rent",
+                      "category": "RENT",
+                      "amount": "22000.00",
+                      "currency": "INR",
+                      "dueDate": "2026-11-01T00:00:00.000Z",
+                      "status": "PENDING",
+                      "isRecurring": true,
+                      "recurrenceInterval": "MONTHLY"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "get": {
+        "summary": "List Bills",
+        "description": "Retrieves a paginated list of bills with optional filters for status, category, date range, or search.",
+        "tags": [
+          "Bills & Payments"
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "Filter by status (PENDING, PAID, OVERDUE, CANCELLED)",
+            "schema": {
+              "type": "string",
+              "example": "PENDING"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "description": "Filter by category (RENT, ELECTRICITY, etc.)",
+            "schema": {
+              "type": "string",
+              "example": "RENT"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "Page number",
+            "schema": {
+              "type": "string",
+              "example": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Results per page (max 100)",
+            "schema": {
+              "type": "string",
+              "example": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of bills and pagination metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "bills": [],
+                    "pagination": {
+                      "total": 1,
+                      "page": 1,
+                      "limit": 20,
+                      "totalPages": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/bills/{{createdBillId}}": {
+      "get": {
+        "summary": "Get Bill By ID",
+        "description": "Retrieves details for a single bill including recurrence cycle history.",
+        "tags": [
+          "Bills & Payments"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Bill UUID",
+            "schema": {
+              "type": "string",
+              "example": "{{createdBillId}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Single bill details"
+          },
+          "404": {
+            "description": "Bill not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "summary": "Update Bill",
+        "description": "Updates details of an existing bill.",
+        "tags": [
+          "Bills & Payments"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Bill UUID",
+            "schema": {
+              "type": "string",
+              "example": "{{createdBillId}}"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Fields to update",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "notes": "Updated note: landlord requested transfer via HDFC",
+                  "amount": 22500
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bill updated successfully"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Delete Bill",
+        "description": "Deletes a bill and removes any attached Cloudinary invoice/receipt files.",
+        "tags": [
+          "Bills & Payments"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Bill UUID",
+            "schema": {
+              "type": "string",
+              "example": "{{createdBillId}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bill deleted successfully"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/bills/{{createdBillId}}/pay": {
+      "post": {
+        "summary": "Mark Bill as Paid",
+        "description": "Marks a bill as paid. If recurring, automatically generates the next cycle's bill.",
+        "tags": [
+          "Bills & Payments"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Bill UUID",
+            "schema": {
+              "type": "string",
+              "example": "{{createdBillId}}"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Payment details",
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "paymentMethod": "UPI",
+                  "paidAmount": 22000
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bill paid and next cycle scheduled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Bill marked as paid successfully",
+                    "paidBill": {
+                      "status": "PAID",
+                      "paidAmount": "22000.00",
+                      "paymentMethod": "UPI"
+                    },
+                    "nextBill": {
+                      "status": "PENDING",
+                      "dueDate": "2026-12-01T00:00:00.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    }
+  }
+}

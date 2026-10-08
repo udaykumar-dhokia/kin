@@ -1,0 +1,812 @@
+{
+  "info": {
+    "name": "Kin - Life Admin OS API",
+    "description": "Comprehensive API collection for Kin (Life Admin OS) with pre-configured requests, chained authentication tokens, and automated test assertions.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3333",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "createdBillId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "description": "User registration, Argon2id authentication, session lifecycle, and token management",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Registers a new user with Argon2id password hashing, creates an active session, and returns tokens.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"StrongPassword123!\",\n  \"firstName\": \"Alex\",\n  \"lastName\": \"Kumar\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "201 User registered successfully",
+              "status": "201",
+              "code": 201,
+              "body": "{\n  \"message\": \"User registered successfully\",\n  \"user\": {\n    \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n    \"email\": \"user@example.com\",\n    \"firstName\": \"Alex\",\n    \"lastName\": \"Kumar\",\n    \"avatarUrl\": null,\n    \"emailVerified\": false\n  },\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"refreshToken\": \"c79f8263e8a4a...\"\n}",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            },
+            {
+              "name": "400 Validation failed",
+              "status": "400",
+              "code": 400,
+              "body": "",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            },
+            {
+              "name": "409 User with this email already exists",
+              "status": "409",
+              "code": 409,
+              "body": "",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () {\n    pm.response.to.have.status(201);\n});\nconst response = pm.response.json();\nif (response.accessToken) {\n    pm.collectionVariables.set(\"accessToken\", response.accessToken);\n    console.log(\"Collection variable 'accessToken' updated.\");\n}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Authenticates credentials using Argon2id, generates a new session, and returns tokens.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"StrongPassword123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "200 Login successful",
+              "status": "200",
+              "code": 200,
+              "body": "{\n  \"message\": \"Login successful\",\n  \"user\": {\n    \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n    \"email\": \"user@example.com\",\n    \"firstName\": \"Alex\",\n    \"lastName\": \"Kumar\"\n  },\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"refreshToken\": \"c79f8263e8a4a...\"\n}",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            },
+            {
+              "name": "401 Invalid email or password",
+              "status": "401",
+              "code": 401,
+              "body": "",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\nconst response = pm.response.json();\nif (response.accessToken) {\n    pm.collectionVariables.set(\"accessToken\", response.accessToken);\n    console.log(\"Collection variable 'accessToken' updated.\");\n}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "Rotates refresh token and issues a new access token. Reads from cookie or JSON body.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"optional_refresh_token_if_not_in_cookie\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "200 Token refreshed successfully",
+              "status": "200",
+              "code": 200,
+              "body": "{\n  \"message\": \"Token refreshed successfully\",\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"refreshToken\": \"new_rotated_refresh_token...\"\n}",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            },
+            {
+              "name": "401 Invalid or expired session",
+              "status": "401",
+              "code": 401,
+              "body": "",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\nconst response = pm.response.json();\nif (response.accessToken) {\n    pm.collectionVariables.set(\"accessToken\", response.accessToken);\n}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Current Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Returns profile details for the authenticated user."
+          },
+          "response": [
+            {
+              "name": "200 User profile details",
+              "status": "200",
+              "code": 200,
+              "body": "{\n  \"user\": {\n    \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n    \"email\": \"user@example.com\",\n    \"firstName\": \"Alex\",\n    \"lastName\": \"Kumar\",\n    \"avatarUrl\": null,\n    \"emailVerified\": false\n  }\n}",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            },
+            {
+              "name": "401 Unauthorized",
+              "status": "401",
+              "code": 401,
+              "body": "",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\nconst response = pm.response.json();\npm.test(\"User object returned\", function () {\n    pm.expect(response.user).to.be.an(\"object\");\n    pm.expect(response.user.email).to.be.a(\"string\");\n});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Revokes the active session and clears the refresh token cookie."
+          },
+          "response": [
+            {
+              "name": "200 Logged out successfully",
+              "status": "200",
+              "code": 200,
+              "body": "{\n  \"message\": \"Logged out successfully\"\n}",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Bills & Payments",
+      "description": "Life Admin OS financial responsibilities, attention dashboard, recurrence scheduling, and attachments",
+      "item": [
+        {
+          "name": "Get Attention Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bills/dashboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bills",
+                "dashboard"
+              ]
+            },
+            "description": "Returns categorized urgent items (Overdue, Due Soon in 7 days, Upcoming in 30 days) and financial totals."
+          },
+          "response": [
+            {
+              "name": "200 Dashboard attention view",
+              "status": "200",
+              "code": 200,
+              "body": "{\n  \"dashboard\": {\n    \"overdue\": [],\n    \"dueSoon\": [],\n    \"upcoming\": [],\n    \"metrics\": {\n      \"totalPendingAmount\": 22000,\n      \"overdueCount\": 0,\n      \"dueSoonCount\": 0,\n      \"upcomingCount\": 1,\n      \"currency\": \"INR\"\n    }\n  }\n}",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\nconst response = pm.response.json();\npm.test(\"Dashboard contains attention categories\", function () {\n    pm.expect(response.dashboard).to.be.an(\"object\");\n    pm.expect(response.dashboard.overdue).to.be.an(\"array\");\n    pm.expect(response.dashboard.dueSoon).to.be.an(\"array\");\n    pm.expect(response.dashboard.upcoming).to.be.an(\"array\");\n    pm.expect(response.dashboard.metrics).to.be.an(\"object\");\n});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Bill",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bills",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bills"
+              ]
+            },
+            "description": "Manually creates a new bill or recurring financial responsibility.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Apartment Rent\",\n  \"description\": \"Monthly apartment rent payment to landlord\",\n  \"category\": \"RENT\",\n  \"amount\": 22000,\n  \"currency\": \"INR\",\n  \"dueDate\": \"2026-11-01T00:00:00.000Z\",\n  \"isRecurring\": true,\n  \"recurrenceInterval\": \"MONTHLY\",\n  \"notes\": \"Landlord bank transfer\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "201 Bill created successfully",
+              "status": "201",
+              "code": 201,
+              "body": "{\n  \"message\": \"Bill created successfully\",\n  \"bill\": {\n    \"id\": \"b1a2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d\",\n    \"userId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n    \"title\": \"Apartment Rent\",\n    \"category\": \"RENT\",\n    \"amount\": \"22000.00\",\n    \"currency\": \"INR\",\n    \"dueDate\": \"2026-11-01T00:00:00.000Z\",\n    \"status\": \"PENDING\",\n    \"isRecurring\": true,\n    \"recurrenceInterval\": \"MONTHLY\"\n  }\n}",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () {\n    pm.response.to.have.status(201);\n});\nconst response = pm.response.json();\nif (response.bill && response.bill.id) {\n    pm.collectionVariables.set(\"createdBillId\", response.bill.id);\n    console.log(\"Saved createdBillId:\", response.bill.id);\n}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List Bills",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bills?status=PENDING&category=RENT&page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bills"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "PENDING",
+                  "description": "Filter by status (PENDING, PAID, OVERDUE, CANCELLED)"
+                },
+                {
+                  "key": "category",
+                  "value": "RENT",
+                  "description": "Filter by category (RENT, ELECTRICITY, etc.)"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Results per page (max 100)"
+                }
+              ]
+            },
+            "description": "Retrieves a paginated list of bills with optional filters for status, category, date range, or search."
+          },
+          "response": [
+            {
+              "name": "200 List of bills and pagination metadata",
+              "status": "200",
+              "code": 200,
+              "body": "{\n  \"bills\": [],\n  \"pagination\": {\n    \"total\": 1,\n    \"page\": 1,\n    \"limit\": 20,\n    \"totalPages\": 1\n  }\n}",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\nconst response = pm.response.json();\npm.test(\"Bills list and pagination returned\", function () {\n    pm.expect(response.bills).to.be.an(\"array\");\n    pm.expect(response.pagination).to.be.an(\"object\");\n});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Bill By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bills/{{createdBillId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bills",
+                "{{createdBillId}}"
+              ]
+            },
+            "description": "Retrieves details for a single bill including recurrence cycle history."
+          },
+          "response": [
+            {
+              "name": "200 Single bill details",
+              "status": "200",
+              "code": 200,
+              "body": "",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            },
+            {
+              "name": "404 Bill not found",
+              "status": "404",
+              "code": 404,
+              "body": "",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\nconst response = pm.response.json();\npm.test(\"Bill data returned\", function () {\n    pm.expect(response.bill).to.be.an(\"object\");\n});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Bill",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bills/{{createdBillId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bills",
+                "{{createdBillId}}"
+              ]
+            },
+            "description": "Updates details of an existing bill.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Updated note: landlord requested transfer via HDFC\",\n  \"amount\": 22500\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "200 Bill updated successfully",
+              "status": "200",
+              "code": 200,
+              "body": "",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mark Bill as Paid",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bills/{{createdBillId}}/pay",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bills",
+                "{{createdBillId}}",
+                "pay"
+              ]
+            },
+            "description": "Marks a bill as paid. If recurring, automatically generates the next cycle's bill.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentMethod\": \"UPI\",\n  \"paidAmount\": 22000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "200 Bill paid and next cycle scheduled",
+              "status": "200",
+              "code": 200,
+              "body": "{\n  \"message\": \"Bill marked as paid successfully\",\n  \"paidBill\": {\n    \"status\": \"PAID\",\n    \"paidAmount\": \"22000.00\",\n    \"paymentMethod\": \"UPI\"\n  },\n  \"nextBill\": {\n    \"status\": \"PENDING\",\n    \"dueDate\": \"2026-12-01T00:00:00.000Z\"\n  }\n}",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\nconst response = pm.response.json();\npm.test(\"Bill marked as PAID\", function () {\n    pm.expect(response.paidBill.status).to.equal(\"PAID\");\n});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Bill",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/bills/{{createdBillId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bills",
+                "{{createdBillId}}"
+              ]
+            },
+            "description": "Deletes a bill and removes any attached Cloudinary invoice/receipt files."
+          },
+          "response": [
+            {
+              "name": "200 Bill deleted successfully",
+              "status": "200",
+              "code": 200,
+              "body": "",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
