@@ -46,6 +46,21 @@ export function generatePostmanCollection(
         value: "",
         type: "string",
       },
+      {
+        key: "createdMemberId",
+        value: "",
+        type: "string",
+      },
+      {
+        key: "inviteToken",
+        value: "",
+        type: "string",
+      },
+      {
+        key: "invitationId",
+        value: "",
+        type: "string",
+      },
     ],
     item: folders,
   };

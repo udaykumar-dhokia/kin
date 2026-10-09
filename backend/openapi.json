@@ -589,6 +589,318 @@
           }
         ]
       }
+    },
+    "/api/v1/family": {
+      "get": {
+        "summary": "Get Primary Household",
+        "description": "Retrieves the user's primary household, all member profiles, and active pending invitations. Auto-provisions a default household if none exists.",
+        "tags": [
+          "Family & Household"
+        ],
+        "responses": {
+          "200": {
+            "description": "Household details with members and invitations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "household": {
+                      "id": "h1a2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+                      "name": "The Kumar Family",
+                      "currency": "INR",
+                      "ownerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                      "members": [
+                        {
+                          "id": "m1a2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+                          "name": "Alex Kumar",
+                          "relationship": "SELF",
+                          "role": "OWNER"
+                        }
+                      ],
+                      "invitations": []
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "summary": "Update Household",
+        "description": "Updates household name or default currency settings.",
+        "tags": [
+          "Family & Household"
+        ],
+        "requestBody": {
+          "description": "Fields to update",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "name": "The Kumar Family Space",
+                  "currency": "INR"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Household updated successfully"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/family/members": {
+      "post": {
+        "summary": "Add Family Member (Managed Dependent)",
+        "description": "Adds a managed family member (e.g., child or elderly parent) with no login required. This member can be assigned responsibilities and bills.",
+        "tags": [
+          "Family & Household"
+        ],
+        "requestBody": {
+          "description": "Member profile data",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "name": "Aarav Kumar",
+                  "relationship": "SON",
+                  "role": "MEMBER",
+                  "dateOfBirth": "2018-05-12T00:00:00.000Z",
+                  "color": "#10B981",
+                  "notes": "Class 2 school fee due monthly"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Member created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Family member added successfully",
+                    "member": {
+                      "id": "m2a3c4d5-e6f7-8a9b-0c1d-2e3f4a5b6c7d",
+                      "name": "Aarav Kumar",
+                      "relationship": "SON",
+                      "role": "MEMBER",
+                      "color": "#10B981"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/family/members/{{createdMemberId}}": {
+      "get": {
+        "summary": "Get Member Assigned Bills",
+        "description": "Retrieves all bills and payment responsibilities assigned to this family member.",
+        "tags": [
+          "Family & Household"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Member UUID",
+            "schema": {
+              "type": "string",
+              "example": "{{createdMemberId}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of bills for this member"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "summary": "Update Family Member",
+        "description": "Updates a family member profile details.",
+        "tags": [
+          "Family & Household"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Member UUID",
+            "schema": {
+              "type": "string",
+              "example": "{{createdMemberId}}"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Fields to update",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "notes": "Updated school details: Greenwood High",
+                  "color": "#3B82F6"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Member updated successfully"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Remove Family Member",
+        "description": "Removes a family member from the household and safely unassigns any linked bills without deleting the bills.",
+        "tags": [
+          "Family & Household"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Member UUID",
+            "schema": {
+              "type": "string",
+              "example": "{{createdMemberId}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Family member removed successfully"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/family/invitations": {
+      "post": {
+        "summary": "Invite Adult Family Member",
+        "description": "Sends an invitation for an adult family member (e.g. Spouse) with a secure token to collaborate in the household.",
+        "tags": [
+          "Family & Household"
+        ],
+        "requestBody": {
+          "description": "Invitation details",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "email": "spouse@example.com",
+                  "name": "Priya Kumar",
+                  "relationship": "SPOUSE",
+                  "role": "ADMIN"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Invitation created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Invitation created successfully",
+                    "inviteToken": "c87f9b23e..."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/family/invitations/{{invitationId}}": {
+      "delete": {
+        "summary": "Cancel Invitation",
+        "description": "Cancels or revokes a pending invitation.",
+        "tags": [
+          "Family & Household"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Invitation UUID",
+            "schema": {
+              "type": "string",
+              "example": "{{invitationId}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Invitation cancelled successfully"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
     }
   }
 }

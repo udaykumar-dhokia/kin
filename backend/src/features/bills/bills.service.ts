@@ -74,9 +74,17 @@ export class BillsService {
    * Creates a new bill for the authenticated user.
    */
   async createBill(userId: string, input: CreateBillInput): Promise<Bill> {
+    const primaryHousehold = await prisma.household.findFirst({
+      where: {
+        OR: [{ ownerId: userId }, { members: { some: { userId } } }],
+      },
+    });
+
     return prisma.bill.create({
       data: {
         userId,
+        householdId: primaryHousehold?.id || null,
+        assignedMemberId: input.assignedMemberId || null,
         title: input.title,
         description: input.description || null,
         category: input.category,
@@ -86,6 +94,17 @@ export class BillsService {
         isRecurring: input.isRecurring,
         recurrenceInterval: input.isRecurring ? input.recurrenceInterval : null,
         notes: input.notes || null,
+      },
+      include: {
+        assignedMember: {
+          select: {
+            id: true,
+            name: true,
+            relationship: true,
+            color: true,
+            avatarUrl: true,
+          },
+        },
       },
     });
   }
@@ -104,6 +123,10 @@ export class BillsService {
 
     if (query.category) {
       where.category = query.category;
+    }
+
+    if (query.assignedMemberId) {
+      where.assignedMemberId = query.assignedMemberId;
     }
 
     if (query.isRecurring !== undefined) {
@@ -132,6 +155,17 @@ export class BillsService {
         skip,
         take,
         orderBy: { dueDate: "asc" },
+        include: {
+          assignedMember: {
+            select: {
+              id: true,
+              name: true,
+              relationship: true,
+              color: true,
+              avatarUrl: true,
+            },
+          },
+        },
       }),
       prisma.bill.count({ where }),
     ]);
@@ -248,7 +282,7 @@ export class BillsService {
     // Verify ownership
     await this.getBillById(userId, billId);
 
-    const data: Prisma.BillUpdateInput = {};
+    const data: Prisma.BillUncheckedUpdateInput = {};
 
     if (input.title !== undefined) data.title = input.title;
     if (input.description !== undefined) data.description = input.description;
@@ -257,6 +291,8 @@ export class BillsService {
       data.amount = new Prisma.Decimal(input.amount);
     if (input.currency !== undefined) data.currency = input.currency;
     if (input.dueDate !== undefined) data.dueDate = input.dueDate;
+    if (input.assignedMemberId !== undefined)
+      data.assignedMemberId = input.assignedMemberId;
     if (input.status !== undefined) data.status = input.status;
     if (input.isRecurring !== undefined) {
       data.isRecurring = input.isRecurring;
@@ -269,6 +305,17 @@ export class BillsService {
     return prisma.bill.update({
       where: { id: billId },
       data,
+      include: {
+        assignedMember: {
+          select: {
+            id: true,
+            name: true,
+            relationship: true,
+            color: true,
+            avatarUrl: true,
+          },
+        },
+      },
     });
   }
 
@@ -318,6 +365,8 @@ export class BillsService {
       nextBill = await prisma.bill.create({
         data: {
           userId,
+          householdId: bill.householdId,
+          assignedMemberId: bill.assignedMemberId,
           title: bill.title,
           description: bill.description,
           category: bill.category,
@@ -329,6 +378,17 @@ export class BillsService {
           recurrenceInterval: bill.recurrenceInterval,
           parentBillId,
           notes: bill.notes,
+        },
+        include: {
+          assignedMember: {
+            select: {
+              id: true,
+              name: true,
+              relationship: true,
+              color: true,
+              avatarUrl: true,
+            },
+          },
         },
       });
     }

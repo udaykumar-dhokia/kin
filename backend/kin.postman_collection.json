@@ -19,6 +19,21 @@
       "key": "createdBillId",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "createdMemberId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "inviteToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "invitationId",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -372,7 +387,7 @@
     },
     {
       "name": "Bills & Payments",
-      "description": "Life Admin OS financial responsibilities, attention dashboard, recurrence scheduling, and attachments",
+      "description": "Financial responsibilities, attention dashboard, recurrence scheduling, and attachments",
       "item": [
         {
           "name": "Get Attention Dashboard",
@@ -783,6 +798,530 @@
           "response": [
             {
               "name": "200 Bill deleted successfully",
+              "status": "200",
+              "code": 200,
+              "body": "",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Family & Household",
+      "description": "Life Admin OS multi-member household management, managed dependent profiles (children, parents), viral invitations, and member responsibilities",
+      "item": [
+        {
+          "name": "Get Primary Household",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/family",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "family"
+              ]
+            },
+            "description": "Retrieves the user's primary household, all member profiles, and active pending invitations. Auto-provisions a default household if none exists."
+          },
+          "response": [
+            {
+              "name": "200 Household details with members and invitations",
+              "status": "200",
+              "code": 200,
+              "body": "{\n  \"household\": {\n    \"id\": \"h1a2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d\",\n    \"name\": \"The Kumar Family\",\n    \"currency\": \"INR\",\n    \"ownerId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n    \"members\": [\n      {\n        \"id\": \"m1a2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d\",\n        \"name\": \"Alex Kumar\",\n        \"relationship\": \"SELF\",\n        \"role\": \"OWNER\"\n      }\n    ],\n    \"invitations\": []\n  }\n}",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\nconst response = pm.response.json();\npm.test(\"Household returned with members array\", function () {\n    pm.expect(response.household).to.be.an(\"object\");\n    pm.expect(response.household.members).to.be.an(\"array\");\n});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Household",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/family",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "family"
+              ]
+            },
+            "description": "Updates household name or default currency settings.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"The Kumar Family Space\",\n  \"currency\": \"INR\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "200 Household updated successfully",
+              "status": "200",
+              "code": 200,
+              "body": "",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Add Family Member (Managed Dependent)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/family/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "family",
+                "members"
+              ]
+            },
+            "description": "Adds a managed family member (e.g., child or elderly parent) with no login required. This member can be assigned responsibilities and bills.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Aarav Kumar\",\n  \"relationship\": \"SON\",\n  \"role\": \"MEMBER\",\n  \"dateOfBirth\": \"2018-05-12T00:00:00.000Z\",\n  \"color\": \"#10B981\",\n  \"notes\": \"Class 2 school fee due monthly\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "201 Member created successfully",
+              "status": "201",
+              "code": 201,
+              "body": "{\n  \"message\": \"Family member added successfully\",\n  \"member\": {\n    \"id\": \"m2a3c4d5-e6f7-8a9b-0c1d-2e3f4a5b6c7d\",\n    \"name\": \"Aarav Kumar\",\n    \"relationship\": \"SON\",\n    \"role\": \"MEMBER\",\n    \"color\": \"#10B981\"\n  }\n}",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () {\n    pm.response.to.have.status(201);\n});\nconst response = pm.response.json();\nif (response.member && response.member.id) {\n    pm.collectionVariables.set(\"createdMemberId\", response.member.id);\n    console.log(\"Saved createdMemberId:\", response.member.id);\n}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Family Member by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/family/members/{{createdMemberId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "family",
+                "members",
+                "{{createdMemberId}}"
+              ]
+            },
+            "description": "Retrieves details and assigned bills for a specific family member."
+          },
+          "response": [
+            {
+              "name": "200 Member profile details with assigned bills",
+              "status": "200",
+              "code": 200,
+              "body": "",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\nconst response = pm.response.json();\npm.test(\"Member object returned\", function () {\n    pm.expect(response.member).to.be.an(\"object\");\n});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Family Member",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/family/members/{{createdMemberId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "family",
+                "members",
+                "{{createdMemberId}}"
+              ]
+            },
+            "description": "Updates a family member profile details.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Updated school details: Greenwood High\",\n  \"color\": \"#3B82F6\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "200 Member updated successfully",
+              "status": "200",
+              "code": 200,
+              "body": "",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Member Assigned Bills",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/family/members/{{createdMemberId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "family",
+                "members",
+                "{{createdMemberId}}"
+              ]
+            },
+            "description": "Retrieves all bills and payment responsibilities assigned to this family member."
+          },
+          "response": [
+            {
+              "name": "200 List of bills for this member",
+              "status": "200",
+              "code": 200,
+              "body": "",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invite Adult Family Member",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/family/invitations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "family",
+                "invitations"
+              ]
+            },
+            "description": "Sends an invitation for an adult family member (e.g. Spouse) with a secure token to collaborate in the household.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"spouse@example.com\",\n  \"name\": \"Priya Kumar\",\n  \"relationship\": \"SPOUSE\",\n  \"role\": \"ADMIN\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "name": "201 Invitation created successfully",
+              "status": "201",
+              "code": 201,
+              "body": "{\n  \"message\": \"Invitation created successfully\",\n  \"inviteToken\": \"c87f9b23e...\"\n}",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () {\n    pm.response.to.have.status(201);\n});\nconst response = pm.response.json();\nif (response.inviteToken) {\n    pm.collectionVariables.set(\"inviteToken\", response.inviteToken);\n    console.log(\"Saved inviteToken:\", response.inviteToken);\n}\nif (response.invitation && response.invitation.id) {\n    pm.collectionVariables.set(\"invitationId\", response.invitation.id);\n}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cancel Invitation",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/family/invitations/{{invitationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "family",
+                "invitations",
+                "{{invitationId}}"
+              ]
+            },
+            "description": "Cancels or revokes a pending invitation."
+          },
+          "response": [
+            {
+              "name": "200 Invitation cancelled successfully",
+              "status": "200",
+              "code": 200,
+              "body": "",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Remove Family Member",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/family/members/{{createdMemberId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "family",
+                "members",
+                "{{createdMemberId}}"
+              ]
+            },
+            "description": "Removes a family member from the household and safely unassigns any linked bills without deleting the bills."
+          },
+          "response": [
+            {
+              "name": "200 Family member removed successfully",
               "status": "200",
               "code": 200,
               "body": "",

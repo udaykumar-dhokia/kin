@@ -1,5 +1,6 @@
 import { authDoc } from "../features/auth/auth.doc";
 import { billsDoc } from "../features/bills/bills.doc";
+import { familyDoc } from "../features/family/family.doc";
 import type { FeatureDoc } from "./types";
 
 /**
@@ -9,4 +10,6 @@ import type { FeatureDoc } from "./types";
 export const registeredFeatures: FeatureDoc[] = [
   authDoc,
   billsDoc,
+  familyDoc,
 ];
+

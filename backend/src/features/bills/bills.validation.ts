@@ -44,6 +44,7 @@ export const createBillSchema = z
       .transform((v) => v.toUpperCase())
       .default("INR"),
     dueDate: z.coerce.date({ message: "A valid due date is required" }),
+    assignedMemberId: z.string().uuid().optional().nullable(),
     isRecurring: z.boolean().default(false),
     recurrenceInterval: RecurrenceIntervalEnum.optional(),
     notes: z.string().trim().max(1000).optional(),
@@ -70,6 +71,7 @@ export const updateBillSchema = z
       .transform((v) => v.toUpperCase())
       .optional(),
     dueDate: z.coerce.date().optional(),
+    assignedMemberId: z.string().uuid().optional().nullable(),
     status: BillStatusEnum.optional(),
     isRecurring: z.boolean().optional(),
     recurrenceInterval: RecurrenceIntervalEnum.optional().nullable(),
@@ -95,6 +97,7 @@ export const payBillSchema = z.object({
 export const queryBillsSchema = z.object({
   status: BillStatusEnum.optional(),
   category: BillCategoryEnum.optional(),
+  assignedMemberId: z.string().uuid().optional(),
   isRecurring: z
     .string()
     .transform((val) => val === "true")

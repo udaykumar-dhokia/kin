@@ -41,6 +41,32 @@ enum RecurrenceInterval {
   YEARLY
 }
 
+enum FamilyRelationship {
+  SELF
+  SPOUSE
+  FATHER
+  MOTHER
+  SON
+  DAUGHTER
+  BROTHER
+  SISTER
+  OTHER
+}
+
+enum HouseholdRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+  CANCELLED
+}
+
 model User {
   id String @id @default(uuid())
 
@@ -55,6 +81,11 @@ model User {
 
   sessions Session[]
   bills    Bill[]
+
+  // Household & Family relations
+  ownedHouseholds      Household[]           @relation("HouseholdOwner")
+  householdMemberships HouseholdMember[]
+  sentInvitations      HouseholdInvitation[] @relation("SentInvitations")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -82,12 +113,90 @@ model Session {
   @@index([revokedAt])
 }
 
+model Household {
+  id       String @id @default(uuid())
+  name     String
+  currency String @default("INR")
+
+  ownerId String
+  owner   User   @relation("HouseholdOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  members     HouseholdMember[]
+  invitations HouseholdInvitation[]
+  bills       Bill[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ownerId])
+}
+
+model HouseholdMember {
+  id String @id @default(uuid())
+
+  householdId String
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  name         String
+  relationship FamilyRelationship @default(OTHER)
+  role         HouseholdRole      @default(MEMBER)
+  avatarUrl    String?
+  dateOfBirth  DateTime?
+  color        String?
+  notes        String?
+
+  assignedBills Bill[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([householdId, userId])
+  @@index([householdId])
+  @@index([userId])
+}
+
+model HouseholdInvitation {
+  id String @id @default(uuid())
+
+  householdId String
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  invitedById String
+  invitedBy   User   @relation("SentInvitations", fields: [invitedById], references: [id], onDelete: Cascade)
+
+  email        String
+  name         String
+  relationship FamilyRelationship @default(SPOUSE)
+  role         HouseholdRole      @default(MEMBER)
+
+  token     String           @unique
+  status    InvitationStatus @default(PENDING)
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([householdId])
+  @@index([email])
+  @@index([token])
+}
+
 model Bill {
   id String @id @default(uuid())
 
   // Ownership
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Household & Assigned Family Member
+  householdId String?
+  household   Household? @relation(fields: [householdId], references: [id], onDelete: SetNull)
+
+  assignedMemberId String?
+  assignedMember   HouseholdMember? @relation(fields: [assignedMemberId], references: [id], onDelete: SetNull)
 
   // Core Bill Details
   title       String
@@ -128,4 +237,6 @@ model Bill {
   @@index([userId, dueDate])
   @@index([userId, category])
   @@index([parentBillId])
+  @@index([householdId])
+  @@index([assignedMemberId])
 }
