@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import '../../../core/constants/app_constants.dart';
+import '../widgets/auth_illustration_header.dart';
+import 'login_screen.dart';
+import 'register_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -16,27 +19,16 @@ class WelcomeScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           child: Column(
             children: [
-              const Spacer(),
+              const Spacer(flex: 1),
 
-              // Brand Icon
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Center(
-                  child: Icon(
-                    LucideIcons.checkCheck,
-                    color: theme.colorScheme.primaryForeground,
-                    size: 32,
-                  ),
-                ),
+              // Illustration Hero
+              const AuthIllustrationHeader(
+                type: AuthIllustrationType.welcome,
               ),
-              const SizedBox(height: 24),
 
-              // Title
+              const SizedBox(height: 12),
+
+              // Brand Title
               Text(
                 AppConstants.appName,
                 style: theme.textTheme.h1.copyWith(
@@ -55,18 +47,16 @@ class WelcomeScreen extends StatelessWidget {
                 ),
               ),
 
-              const Spacer(),
+              const Spacer(flex: 2),
 
               // Action Buttons
               SizedBox(
                 width: double.infinity,
                 child: ShadButton(
                   onPressed: () {
-                    // Navigate to sign up flow
-                    ShadToaster.of(context).show(
-                      const ShadToast(
-                        title: Text('Get Started'),
-                        description: Text('Sign up will be implemented in the next step.'),
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const RegisterScreen(),
                       ),
                     );
                   },
@@ -79,18 +69,16 @@ class WelcomeScreen extends StatelessWidget {
                 width: double.infinity,
                 child: ShadButton.outline(
                   onPressed: () {
-                    // Navigate to sign in flow
-                    ShadToaster.of(context).show(
-                      const ShadToast(
-                        title: Text('Sign In'),
-                        description: Text('Login will be implemented in the next step.'),
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const LoginScreen(),
                       ),
                     );
                   },
                   child: const Text('Sign in'),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
             ],
           ),
         ),
