@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:app/main.dart';
@@ -9,9 +10,15 @@ void main() {
       'has_seen_onboarding': false,
     });
     await StorageService.init();
+    await StorageService.setHasSeenOnboarding(false);
+    await StorageService.clearAuth();
   });
 
   testWidgets('Onboarding flow smoke test', (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(800, 1400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+
     // Build KinApp
     await tester.pumpWidget(const KinApp());
     await tester.pumpAndSettle();
@@ -53,6 +60,10 @@ void main() {
 
   testWidgets('Skip button navigates to WelcomeScreen directly',
       (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(800, 1400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+
     // Build KinApp
     await tester.pumpWidget(const KinApp());
     await tester.pumpAndSettle();

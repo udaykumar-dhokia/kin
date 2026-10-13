@@ -5,10 +5,7 @@ import '../models/onboarding_slide.dart';
 class IllustrationPlaceholder extends StatelessWidget {
   final OnboardingSlide slide;
 
-  const IllustrationPlaceholder({
-    super.key,
-    required this.slide,
-  });
+  const IllustrationPlaceholder({super.key, required this.slide});
 
   @override
   Widget build(BuildContext context) {
@@ -16,11 +13,13 @@ class IllustrationPlaceholder extends StatelessWidget {
 
     // If an image asset is provided later, render the asset directly.
     if (slide.imageAssetPath != null && slide.imageAssetPath!.isNotEmpty) {
-      return Image.asset(
-        slide.imageAssetPath!,
-        fit: BoxFit.contain,
-        errorBuilder: (context, error, stackTrace) =>
-            _buildPlaceholderFrame(context, theme),
+      return Center(
+        child: Image.asset(
+          slide.imageAssetPath!,
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) =>
+              _buildPlaceholderFrame(context, theme),
+        ),
       );
     }
 
@@ -30,15 +29,12 @@ class IllustrationPlaceholder extends StatelessWidget {
   Widget _buildPlaceholderFrame(BuildContext context, ShadThemeData theme) {
     return Container(
       width: double.infinity,
-      constraints: const BoxConstraints(maxHeight: 280),
+      height: 220,
       margin: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
         color: theme.colorScheme.card,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: theme.colorScheme.border,
-          width: 1.2,
-        ),
+        border: Border.all(color: theme.colorScheme.border, width: 1.2),
       ),
       child: Stack(
         alignment: Alignment.center,

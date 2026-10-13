@@ -17,25 +17,32 @@ class AuthIllustrationHeader extends StatelessWidget {
     this.imageAssetPath,
   });
 
+  String get _resolvedAssetPath {
+    if (imageAssetPath != null && imageAssetPath!.isNotEmpty) {
+      return imageAssetPath!;
+    }
+    return switch (type) {
+      AuthIllustrationType.welcome => 'assets/images/auth_welcome.png',
+      AuthIllustrationType.login => 'assets/images/auth_login.png',
+      AuthIllustrationType.register => 'assets/images/auth_register.png',
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = ShadTheme.of(context);
 
-    // If custom artwork asset path is provided, attempt to render it
-    if (imageAssetPath != null && imageAssetPath!.isNotEmpty) {
-      return Container(
-        height: 140,
-        alignment: Alignment.center,
-        child: Image.asset(
-          imageAssetPath!,
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) =>
-              _buildVectorBadge(context, theme),
-        ),
-      );
-    }
-
-    return _buildVectorBadge(context, theme);
+    return Container(
+      height: 140,
+      margin: const EdgeInsets.only(bottom: 24),
+      alignment: Alignment.center,
+      child: Image.asset(
+        _resolvedAssetPath,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) =>
+            _buildVectorBadge(context, theme),
+      ),
+    );
   }
 
   Widget _buildVectorBadge(BuildContext context, ShadThemeData theme) {
@@ -57,7 +64,6 @@ class AuthIllustrationHeader extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: 140,
-      margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
         color: theme.colorScheme.card,
         borderRadius: BorderRadius.circular(20),

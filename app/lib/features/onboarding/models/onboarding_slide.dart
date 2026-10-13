@@ -17,26 +17,29 @@ class OnboardingSlide {
   });
 
   static List<OnboardingSlide> get slides => const [
-        OnboardingSlide(
-          badge: 'DEADLINES',
-          title: 'Never miss what matters.',
-          description:
-              'Keep all your bills, renewals, and deadlines in one calm place.',
-          icon: LucideIcons.calendarClock,
-        ),
-        OnboardingSlide(
-          badge: 'HOUSEHOLD',
-          title: 'Keep everyone in sync.',
-          description:
-              'Coordinate household tasks and bills with family effortlessly.',
-          icon: LucideIcons.users,
-        ),
-        OnboardingSlide(
-          badge: 'AUTOMATION',
-          title: 'Set once. Relax forever.',
-          description:
-              'Recurring expenses and dates schedule themselves automatically.',
-          icon: LucideIcons.repeat,
-        ),
-      ];
+    OnboardingSlide(
+      badge: 'DEADLINES',
+      title: 'Never miss what matters.',
+      description:
+          'Keep all your bills, renewals, and deadlines in one calm place.',
+      icon: LucideIcons.calendarClock,
+      imageAssetPath: 'assets/images/onboarding_deadlines.png',
+    ),
+    OnboardingSlide(
+      badge: 'HOUSEHOLD',
+      title: 'Keep everyone in sync.',
+      description:
+          'Coordinate household tasks and bills with family effortlessly.',
+      icon: LucideIcons.users,
+      imageAssetPath: 'assets/images/onboarding_household.png',
+    ),
+    OnboardingSlide(
+      badge: 'AUTOMATION',
+      title: 'Set once. Relax forever.',
+      description:
+          'Recurring expenses and dates schedule themselves automatically.',
+      icon: LucideIcons.repeat,
+      imageAssetPath: 'assets/images/onboarding_automation.png',
+    ),
+  ];
 }

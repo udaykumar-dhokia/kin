@@ -107,12 +107,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Spacer(flex: 1),
+                        const SizedBox(height: 8),
 
                         // Illustration / Placeholder slot
-                        IllustrationPlaceholder(slide: slide),
+                        Expanded(
+                          child: Center(
+                            child: IllustrationPlaceholder(slide: slide),
+                          ),
+                        ),
 
-                        const Spacer(flex: 1),
+                        const SizedBox(height: 20),
 
                         // Badge Category
                         ShadBadge(
