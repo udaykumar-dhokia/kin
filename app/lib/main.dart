@@ -4,8 +4,8 @@ import 'core/constants/app_constants.dart';
 import 'core/services/storage_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/screens/welcome_screen.dart';
-import 'features/dashboard/screens/dashboard_screen.dart';
 import 'features/onboarding/screens/onboarding_screen.dart';
+import 'features/shell/screens/main_shell_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +26,7 @@ class KinApp extends StatelessWidget {
     if (!hasSeenOnboarding) {
       initialScreen = const OnboardingScreen();
     } else if (isLoggedIn) {
-      initialScreen = const DashboardScreen();
+      initialScreen = const MainShellScreen();
     } else {
       initialScreen = const WelcomeScreen();
     }

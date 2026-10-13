@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
-import '../../dashboard/screens/dashboard_screen.dart';
+import '../../shell/screens/main_shell_screen.dart';
 import '../services/auth_service.dart';
 import '../widgets/auth_illustration_header.dart';
 import '../widgets/password_input.dart';
@@ -51,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      final response = await _authService.login(
+      await _authService.login(
         email: email,
         password: password,
       );
@@ -60,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
-          builder: (_) => DashboardScreen(user: response.user),
+          builder: (_) => const MainShellScreen(),
         ),
         (route) => false,
       );

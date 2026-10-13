@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
-import '../../dashboard/screens/dashboard_screen.dart';
+import '../../shell/screens/main_shell_screen.dart';
 import '../services/auth_service.dart';
 import '../widgets/auth_illustration_header.dart';
 import '../widgets/password_input.dart';
@@ -61,7 +61,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
 
     try {
-      final response = await _authService.register(
+      await _authService.register(
         firstName: firstName,
         lastName: lastName.isNotEmpty ? lastName : null,
         email: email,
@@ -72,7 +72,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
-          builder: (_) => DashboardScreen(user: response.user),
+          builder: (_) => const MainShellScreen(),
         ),
         (route) => false,
       );
